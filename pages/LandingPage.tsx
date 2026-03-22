@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
-  Car, Sparkles, Layers, Palette, Share2, Globe, 
+  Sparkles, Layers, Palette, Share2, Globe, 
   MessageSquare, ChevronRight, Play, CheckCircle2, 
-  Star, Zap, Shield, Menu, X, Activity, Scan 
+  Star, Zap, Shield, Menu, X, Activity, Scan, Car 
 } from 'lucide-react';
+import Logo from '../components/Logo';
 
 const LandingPage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,12 +27,7 @@ const LandingPage: React.FC = () => {
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-carvix-bg/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-neon-purple flex items-center justify-center shadow-neon">
-              <Car className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white">Carvix <span className="text-carvix-accent">AI</span></span>
-          </div>
+          <Logo variant="full" iconClassName="w-8 h-8" textClassName="text-xl" />
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
@@ -394,11 +390,8 @@ const LandingPage: React.FC = () => {
       <footer className="bg-carvix-bg border-t border-white/5 pt-16 pb-8 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded bg-neon-purple flex items-center justify-center">
-                <Car className="w-3 h-3 text-white" />
-              </div>
-              <span className="text-lg font-bold">Carvix AI</span>
+            <div className="mb-4">
+              <Logo variant="full" iconClassName="w-6 h-6" textClassName="text-lg" />
             </div>
             <p className="text-sm text-gray-500">The next-generation AI-powered automotive design studio.</p>
           </div>

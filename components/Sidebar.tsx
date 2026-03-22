@@ -1,5 +1,6 @@
 import React from 'react';
 import { LayoutDashboard, Car, Image as ImageIcon, Sparkles, ShoppingBag, Settings } from 'lucide-react';
+import Logo from './Logo';
 
 const Sidebar: React.FC = () => {
   const menuItems = [
@@ -13,11 +14,8 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside className="w-64 h-full bg-carvix-bg border-r border-white/5 flex flex-col">
-      <div className="p-6 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-neon-purple flex items-center justify-center shadow-neon">
-          <Car className="w-5 h-5 text-white" />
-        </div>
-        <span className="text-xl font-bold tracking-tight text-white">Carvix <span className="text-carvix-accent">AI</span></span>
+      <div className="p-6">
+        <Logo variant="full" iconClassName="w-8 h-8" textClassName="text-xl" />
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-2">

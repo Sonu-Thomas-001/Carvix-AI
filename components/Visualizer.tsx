@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Download, Maximize2, RefreshCw, ZoomIn, Sun, Moon, Activity, 
   Layers, Scan, Smartphone, Video, Play, Pause, Crosshair, Sparkles, Box, Car
@@ -320,18 +321,37 @@ const Visualizer: React.FC<VisualizerProps> = ({ imageUrl, loading, onGenerate, 
 };
 
 const CarIconLoader = () => (
-  <div className="absolute inset-0 flex items-center justify-center opacity-80">
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="url(#neon-gradient)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <div className="absolute inset-0 flex items-center justify-center opacity-90">
+    <motion.svg 
+      width="64" height="64" viewBox="0 0 100 100" fill="none"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+    >
       <defs>
-        <linearGradient id="neon-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id="wheel-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#2F80ED" />
-          <stop offset="100%" stopColor="#8A2BE2" />
+          <stop offset="100%" stopColor="#B026FF" />
         </linearGradient>
+        <filter id="wheel-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
       </defs>
-      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H7.7c-.7 0-1.3.3-1.8.7L3.7 10s-2.7.6-4.5 1.1C-.3 11.3 0 12.1 0 13v3c0 .6.4 1 1 1h2" transform="translate(2, 2)"/>
-      <circle cx="7" cy="17" r="2" transform="translate(2, 2)"/>
-      <circle cx="17" cy="17" r="2" transform="translate(2, 2)"/>
-    </svg>
+      {/* Outer Rim */}
+      <circle cx="50" cy="50" r="45" stroke="url(#wheel-gradient)" strokeWidth="4" strokeDasharray="60 20" filter="url(#wheel-glow)" />
+      {/* Inner Hub */}
+      <circle cx="50" cy="50" r="10" fill="url(#wheel-gradient)" filter="url(#wheel-glow)" />
+      {/* Spokes */}
+      {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+        <line 
+          key={i}
+          x1="50" y1="50" x2="50" y2="5" 
+          stroke="url(#wheel-gradient)" strokeWidth="3"
+          transform={`rotate(${angle} 50 50)`}
+          opacity="0.8"
+        />
+      ))}
+    </motion.svg>
   </div>
 );
 
