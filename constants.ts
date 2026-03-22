@@ -104,6 +104,9 @@ export const BODY_KITS: SelectOption[] = [
   { label: 'Rocket Bunny Style', value: 'Ducktail Spoiler and Wide Fenders' },
   { label: 'GT3 Racing', value: 'GT3 Spec Racing Aero' },
   { label: 'Cyberpunk / Future', value: 'Cyberpunk 2077 Futuristic Armor' },
+  { label: 'Banshee Widebody', value: 'Banshee Aggressive Widebody with Vents' },
+  { label: 'Cyberpunk Race Kit', value: 'Cyberpunk Race Kit with Exposed Tech' },
+  { label: 'Neo-Tokyo Street Sweeper', value: 'Neo-Tokyo Low Slung Street Sweeper Aero' },
 ];
 
 export const WHEELS: SelectOption[] = [
@@ -136,6 +139,24 @@ export const ACCESSORIES: SelectOption[] = [
   { label: 'Intercooler', value: 'Visible Front Mount Intercooler' },
 ];
 
+export const STYLE_PRESETS: SelectOption[] = [
+  { label: 'None', value: '' },
+  { label: 'Sport', value: 'Aggressive Sporty Style' },
+  { label: 'Luxury', value: 'High-end Luxury and Elegance' },
+  { label: 'Cyberpunk', value: 'Neon Cyberpunk Dystopian' },
+  { label: 'Off-road', value: 'Rugged Off-road Overlander' },
+];
+
+export const CAMERA_ANGLES: SelectOption[] = [
+  { label: 'Front 3/4', value: 'Front 3/4 Angle' },
+  { label: 'Rear 3/4', value: 'Rear 3/4 Angle' },
+  { label: 'Side Profile', value: 'Side Profile' },
+  { label: 'Front View', value: 'Direct Front View' },
+  { label: 'Rear View', value: 'Direct Rear View' },
+  { label: 'Top Down', value: 'Top Down View' },
+  { label: 'Low Angle', value: 'Low Angle Hero Shot' },
+];
+
 export const DEFAULT_CONFIG: CarConfig = {
   make: 'Porsche',
   model: '911 GT3 RS',
@@ -148,4 +169,7 @@ export const DEFAULT_CONFIG: CarConfig = {
   interiorColor: 'Black',
   background: 'Studio Minimal (Dark)',
   accessories: [],
+  customPrompt: '',
+  stylePreset: '',
+  cameraAngle: 'Front 3/4 Angle',
 };

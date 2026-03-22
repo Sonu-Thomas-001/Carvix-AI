@@ -10,6 +10,9 @@ export interface CarConfig {
   interiorColor: string;
   background: string;
   accessories: string[];
+  customPrompt?: string;
+  stylePreset?: string;
+  cameraAngle?: string;
 }
 
 export interface GeneratedImage {

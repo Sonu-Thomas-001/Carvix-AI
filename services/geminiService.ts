@@ -16,9 +16,11 @@ export const generateCarImage = async (config: CarConfig): Promise<string> => {
     Interior: ${config.interiorColor} interior visible through windows.
     
     Environment/Background: ${config.background}.
+    ${config.stylePreset ? `Style Preset: ${config.stylePreset}.` : ''}
+    ${config.customPrompt ? `Custom User Prompt (Prioritize these details): ${config.customPrompt}.` : ''}
     
     Lighting & Composition: Cinematic lighting, professional automotive photography, sharp focus, highly detailed textures, realistic reflections. 
-    View angle: 3/4 front view showcasing the vehicle stance and wheels.
+    View angle: ${config.cameraAngle || '3/4 front view showcasing the vehicle stance and wheels'}.
     
     Ensure the car looks realistic and not cartoonish.
   `;

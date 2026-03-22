@@ -3,25 +3,33 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apex Auto Architect</title>
+    <title>Carvix AI - Automotive Design Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
-              display: ['Exo 2', 'sans-serif'],
             },
             colors: {
-              apex: {
-                900: '#0f172a',
-                800: '#1e293b',
-                700: '#334155',
-                accent: '#3b82f6',
+              carvix: {
+                bg: '#0B0E11',
+                panel: '#1F2933',
+                panelHover: '#2A3744',
+                accent: '#2F80ED',
                 accentHover: '#2563eb',
+                purple: '#8A2BE2',
               }
+            },
+            backgroundImage: {
+              'glass-gradient': 'linear-gradient(135deg, rgba(31, 41, 51, 0.6) 0%, rgba(31, 41, 51, 0.2) 100%)',
+              'neon-purple': 'linear-gradient(135deg, #2F80ED 0%, #8A2BE2 100%)',
+            },
+            boxShadow: {
+              'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+              'neon': '0 0 15px rgba(47, 128, 237, 0.5)',
             }
           },
         },
@@ -29,23 +37,30 @@
     </script>
     <style>
       body {
-        background-color: #050505;
+        background-color: #0B0E11;
         color: #ffffff;
+        font-family: 'Inter', sans-serif;
       }
       /* Custom Scrollbar */
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
       }
       ::-webkit-scrollbar-track {
-        background: #1e293b; 
+        background: transparent; 
       }
       ::-webkit-scrollbar-thumb {
-        background: #475569; 
-        border-radius: 4px;
+        background: #2A3744; 
+        border-radius: 10px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #64748b; 
+        background: #2F80ED; 
+      }
+      .glass-panel {
+        background: rgba(31, 41, 51, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
       }
     </style>
   <script type="importmap">
@@ -59,8 +74,10 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
   <body>
     <div id="root"></div>
-  </body>
+  <script type="module" src="/index.tsx"></script>
+</body>
 </html>

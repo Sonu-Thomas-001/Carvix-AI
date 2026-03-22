@@ -1,7 +1,7 @@
 import React from 'react';
 import { CarConfig, CarCategory, SelectOption } from '../types';
-import { MAKES, MODELS, BODY_KITS, WHEELS, COLORS, BACKGROUNDS, ACCESSORIES } from '../constants';
-import { ChevronRight, Layers, Palette, Circle, Settings, Image as ImageIcon } from 'lucide-react';
+import { MAKES, MODELS, BODY_KITS, WHEELS, COLORS, BACKGROUNDS, ACCESSORIES, STYLE_PRESETS, CAMERA_ANGLES } from '../constants';
+import { ChevronRight, Layers, Palette, Circle, Settings, Image as ImageIcon, Sparkles } from 'lucide-react';
 
 interface ControlPanelProps {
   config: CarConfig;
@@ -10,16 +10,17 @@ interface ControlPanelProps {
   loading: boolean;
 }
 
-const CATEGORIES: { id: CarCategory; icon: React.FC<any>; label: string }[] = [
+const CATEGORIES: { id: CarCategory | 'Advanced'; icon: React.FC<any>; label: string }[] = [
   { id: 'Vehicle', icon: Layers, label: 'Base Model' },
   { id: 'Exterior', icon: Palette, label: 'Paint & Body' },
   { id: 'Wheels', icon: Circle, label: 'Wheels & Stance' },
   { id: 'Interior', icon: Settings, label: 'Interior & Mods' },
   { id: 'Scene', icon: ImageIcon, label: 'Environment' },
+  { id: 'Advanced', icon: Sparkles, label: 'AI Studio' },
 ];
 
 const ControlPanel: React.FC<ControlPanelProps> = ({ config, updateConfig, onGenerate, loading }) => {
-  const [activeCategory, setActiveCategory] = React.useState<CarCategory>('Vehicle');
+  const [activeCategory, setActiveCategory] = React.useState<CarCategory | 'Advanced'>('Vehicle');
 
   const currentModels = MODELS[config.make] || [];
 
@@ -224,6 +225,47 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, updateConfig, onGen
             <p className="text-xs text-gray-500 mt-4 leading-relaxed">
               *The environment lighting will automatically interact with the car paint finish (reflections, shadows) for maximum realism.
             </p>
+          </div>
+        )}
+
+        {activeCategory === 'Advanced' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="form-group">
+              <label className="text-gray-400 text-xs uppercase font-bold mb-2 block flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-apex-accent" /> AI Style Preset
+              </label>
+              <select 
+                value={config.stylePreset || ''} 
+                onChange={(e) => updateConfig('stylePreset', e.target.value)}
+                className="w-full bg-apex-900 border border-gray-600 rounded-lg p-3 text-white focus:border-apex-accent focus:outline-none"
+              >
+                {STYLE_PRESETS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="text-gray-400 text-xs uppercase font-bold mb-2 block">Camera Angle</label>
+              <select 
+                value={config.cameraAngle || ''} 
+                onChange={(e) => updateConfig('cameraAngle', e.target.value)}
+                className="w-full bg-apex-900 border border-gray-600 rounded-lg p-3 text-white focus:border-apex-accent focus:outline-none"
+              >
+                {CAMERA_ANGLES.map(a => <option key={a.value} value={a.value}>{a.label}</option>)}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="text-gray-400 text-xs uppercase font-bold mb-2 block">Custom AI Prompt</label>
+              <textarea 
+                value={config.customPrompt || ''} 
+                onChange={(e) => updateConfig('customPrompt', e.target.value)}
+                placeholder="E.g., Aggressive matte black widebody with red accents and glowing neon wheels..."
+                className="w-full bg-apex-900 border border-gray-600 rounded-lg p-3 text-white focus:border-apex-accent focus:outline-none min-h-[100px] resize-y"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Use this to override or add specific details not covered by the standard options.
+              </p>
+            </div>
           </div>
         )}
 
