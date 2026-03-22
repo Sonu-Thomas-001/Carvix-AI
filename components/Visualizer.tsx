@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Download, Maximize2, RefreshCw, Rotate3D, ZoomIn, Sun, Moon, Camera, SplitSquareHorizontal, Activity } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Download, Maximize2, RefreshCw, ZoomIn, Sun, Moon, Activity, 
+  Layers, Scan, Smartphone, Video, Play, Pause, Crosshair, Sparkles, Box, Car
+} from 'lucide-react';
 
 interface VisualizerProps {
   imageUrl: string | null;
@@ -8,16 +11,93 @@ interface VisualizerProps {
   isInitial: boolean;
 }
 
+const CAMERAS = [
+  { id: 'Front 3/4', icon: Video },
+  { id: 'Rear 3/4', icon: Video },
+  { id: 'Top View', icon: Video },
+  { id: 'Wheel Close-up', icon: Crosshair },
+  { id: 'Interior', icon: Car },
+];
+
+const MODES = [
+  { id: 'Default', icon: Box, label: 'Standard View' },
+  { id: 'Exploded', icon: Layers, label: 'Exploded View' },
+  { id: 'X-Ray', icon: Scan, label: 'X-Ray Mode' },
+  { id: 'AR', icon: Smartphone, label: 'AR Preview' },
+];
+
+const ENVS = ['Studio', 'Night City', 'Outdoor', 'Track'];
+
 const Visualizer: React.FC<VisualizerProps> = ({ imageUrl, loading, onGenerate, isInitial }) => {
   const [isHovering, setIsHovering] = useState(false);
   const [fps, setFps] = useState(60);
+  
+  // 3D Interaction States
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [rawMousePos, setRawMousePos] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [isAutoRotate, setIsAutoRotate] = useState(true);
+  const [activeCamera, setActiveCamera] = useState('Front 3/4');
+  const [activeMode, setActiveMode] = useState('Default');
+  const [env, setEnv] = useState('Studio');
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipText, setTooltipText] = useState('');
+  
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  // Simulated FPS
   useEffect(() => {
     if (!loading && imageUrl) {
-      const interval = setInterval(() => setFps(Math.floor(Math.random() * 5) + 58), 1000);
+      const interval = setInterval(() => setFps(Math.floor(Math.random() * 3) + 58), 1000);
       return () => clearInterval(interval);
     }
   }, [loading, imageUrl]);
+
+  // Auto-rotate animation
+  useEffect(() => {
+    if (!isAutoRotate || loading || !imageUrl) return;
+    let angle = 0;
+    const interval = setInterval(() => {
+      angle += 0.005;
+      setMousePos({ x: Math.sin(angle) * 0.15, y: Math.cos(angle) * 0.05 });
+    }, 16);
+    return () => clearInterval(interval);
+  }, [isAutoRotate, loading, imageUrl]);
+
+  const getTooltipContent = (x: number, y: number) => {
+    if (y > 0.15 && x > 0.15) return 'Rear Alloy Wheels';
+    if (y > 0.15 && x < -0.15) return 'Front Alloy Wheels';
+    if (y > 0.2 && Math.abs(x) <= 0.15) return 'Front Splitter & Bumper';
+    if (y < -0.1 && Math.abs(x) < 0.2) return 'Panoramic Glass Roof';
+    if (Math.abs(y) <= 0.1 && Math.abs(x) < 0.2) return 'Main Body / Chassis';
+    return null;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (loading || !imageUrl) return;
+    if (isAutoRotate) setIsAutoRotate(false);
+    
+    if (!containerRef.current) return;
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX - left) / width - 0.5;
+    const y = (e.clientY - top) / height - 0.5;
+    
+    setMousePos({ x, y });
+    setRawMousePos({ x: e.clientX, y: e.clientY });
+
+    const tooltip = getTooltipContent(x, y);
+    if (tooltip) {
+      setTooltipText(tooltip);
+      setShowTooltip(true);
+    } else {
+      setShowTooltip(false);
+    }
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (loading || !imageUrl) return;
+    setZoom(prev => Math.min(Math.max(prev - e.deltaY * 0.002, 0.8), 3));
+  };
 
   const handleDownload = () => {
     if (imageUrl) {
@@ -32,26 +112,161 @@ const Visualizer: React.FC<VisualizerProps> = ({ imageUrl, loading, onGenerate, 
 
   return (
     <div 
+      ref={containerRef}
       className="relative w-full h-full bg-carvix-bg rounded-3xl overflow-hidden border border-white/5 shadow-2xl flex items-center justify-center group"
       onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseLeave={() => {
+        setIsHovering(false);
+        setShowTooltip(false);
+      }}
+      onMouseMove={handleMouseMove}
+      onWheel={handleWheel}
     >
-      {/* Background Grid Pattern */}
-      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" 
-           style={{ 
-             backgroundImage: 'linear-gradient(#2F80ED 1px, transparent 1px), linear-gradient(90deg, #2F80ED 1px, transparent 1px)', 
-             backgroundSize: '80px 80px' 
-           }} 
-      />
+      {/* 3D Grid Floor */}
+      <div className="absolute inset-0 z-0 pointer-events-none flex items-end justify-center pb-10 overflow-hidden">
+        <div 
+          className="w-[200%] h-[60%] opacity-15"
+          style={{ 
+            backgroundImage: 'linear-gradient(#2F80ED 1px, transparent 1px), linear-gradient(90deg, #2F80ED 1px, transparent 1px)', 
+            backgroundSize: '60px 60px',
+            transform: 'perspective(600px) rotateX(75deg)',
+            maskImage: 'radial-gradient(ellipse at top, black 10%, transparent 70%)',
+            WebkitMaskImage: 'radial-gradient(ellipse at top, black 10%, transparent 70%)'
+          }} 
+        />
+      </div>
 
-      {/* Performance Indicator */}
+      {/* Performance Indicators */}
       {imageUrl && !loading && (
-        <div className="absolute top-6 left-6 z-20 glass-panel px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-mono text-carvix-accent">
-          <Activity className="w-3 h-3" />
-          {fps} FPS | 4K PBR
+        <div className="absolute top-6 left-6 z-20 flex flex-col gap-2 transition-opacity duration-500">
+          <div className="glass-panel px-3 py-1.5 rounded-full flex items-center gap-2 text-[10px] font-mono text-carvix-accent border border-carvix-accent/20 shadow-neon">
+            <Activity className="w-3 h-3" />
+            {fps} FPS | Carvix 3D Engine
+          </div>
+          <div className="glass-panel px-3 py-1.5 rounded-full flex items-center gap-2 text-[10px] font-mono text-gray-400 border border-white/5">
+            <Layers className="w-3 h-3" />
+            PBR Materials Active
+          </div>
         </div>
       )}
 
+      {/* AI Smart Camera Badge */}
+      {imageUrl && !loading && (
+        <div className="absolute top-6 right-6 z-20 flex items-center gap-3">
+          <div className="glass-panel px-3 py-1.5 rounded-full flex items-center gap-2 text-[10px] font-bold text-carvix-purple border border-carvix-purple/30 shadow-[0_0_10px_rgba(138,43,226,0.3)] bg-carvix-purple/10">
+            <Sparkles className="w-3 h-3" />
+            AI Smart Camera
+          </div>
+        </div>
+      )}
+
+      {/* Advanced Modes (Top Right) */}
+      {imageUrl && !loading && (
+        <div className={`absolute top-20 right-6 z-20 flex flex-col gap-2 transition-all duration-500 ${isHovering ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+          {MODES.map(m => (
+            <button 
+              key={m.id}
+              onClick={() => setActiveMode(m.id)}
+              className={`p-2.5 rounded-xl transition-all group relative border ${activeMode === m.id ? 'bg-carvix-accent/20 text-carvix-accent border-carvix-accent shadow-neon' : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-white/5'}`}
+            >
+              <m.icon className="w-4 h-4" />
+              <span className="absolute right-full mr-3 px-2 py-1 bg-carvix-panel text-[10px] font-medium rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10">
+                {m.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Camera Presets (Left) */}
+      {imageUrl && !loading && (
+        <div className={`absolute left-6 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-2 transition-all duration-500 ${isHovering ? 'opacity-100 -translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+          {CAMERAS.map(c => (
+            <button 
+              key={c.id}
+              onClick={() => setActiveCamera(c.id)}
+              className={`p-2.5 rounded-xl transition-all group relative border ${activeCamera === c.id ? 'bg-white/20 text-white border-white/30 shadow-glass' : 'glass-panel text-gray-400 hover:text-white hover:bg-white/10 border-white/5'}`}
+            >
+              <c.icon className="w-4 h-4" />
+              <span className="absolute left-full ml-3 px-2 py-1 bg-carvix-panel text-[10px] font-medium rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10">
+                {c.id}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Zoom Slider (Right) */}
+      {imageUrl && !loading && (
+        <div className={`absolute right-6 top-1/2 -translate-y-1/2 z-20 glass-panel p-2 rounded-full flex flex-col items-center gap-3 transition-all duration-500 border border-white/5 ${isHovering ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+          <ZoomIn className="w-4 h-4 text-gray-400" />
+          <input 
+            type="range" 
+            min="0.8" max="3" step="0.05" 
+            value={zoom} 
+            onChange={(e) => setZoom(parseFloat(e.target.value))}
+            className="w-1 h-24 appearance-none bg-white/10 rounded-full outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-carvix-accent [&::-webkit-slider-thumb]:rounded-full cursor-ns-resize"
+            style={{ writingMode: 'bt-lr', WebkitAppearance: 'slider-vertical' } as any}
+          />
+        </div>
+      )}
+
+      {/* Environments (Bottom Center) */}
+      {imageUrl && !loading && (
+        <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-20 glass-panel p-1.5 rounded-2xl flex items-center gap-1 transition-all duration-500 border border-white/5 ${isHovering ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          {ENVS.map(e => (
+            <button 
+              key={e}
+              onClick={() => setEnv(e)}
+              className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${env === e ? 'bg-white/10 text-white shadow-glass' : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'}`}
+            >
+              {e}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Actions (Bottom Right) */}
+      {imageUrl && !loading && (
+        <div className={`absolute bottom-8 right-6 z-20 flex gap-2 transition-all duration-500 ${isHovering ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
+          <button 
+            onClick={() => setIsAutoRotate(!isAutoRotate)}
+            className={`p-3 rounded-xl transition-all border ${isAutoRotate ? 'bg-carvix-accent/20 text-carvix-accent border-carvix-accent shadow-neon' : 'glass-panel text-gray-400 hover:text-white border-white/5'}`}
+            title="Auto Rotate"
+          >
+            {isAutoRotate ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+          </button>
+          <button 
+            onClick={handleDownload}
+            className="p-3 glass-panel text-white rounded-xl hover:bg-carvix-accent hover:border-carvix-accent transition-all shadow-glass border border-white/5"
+            title="Export 8K Render"
+          >
+            <Download className="w-4 h-4" />
+          </button>
+          <button 
+            className="p-3 glass-panel text-white rounded-xl hover:bg-white/10 transition-all shadow-glass border border-white/5"
+            title="Cinematic Fullscreen"
+            onClick={() => window.open(imageUrl, '_blank')}
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Contextual Tooltip */}
+      {showTooltip && isHovering && !loading && imageUrl && (
+        <div 
+          className="fixed z-50 glass-panel px-3 py-1.5 rounded-lg border border-carvix-accent/50 text-[10px] font-bold uppercase tracking-wider text-white shadow-neon pointer-events-none transition-opacity duration-200"
+          style={{ left: rawMousePos.x + 15, top: rawMousePos.y + 15 }}
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-carvix-accent animate-pulse"></div>
+            {tooltipText}
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
       {loading ? (
         <div className="z-10 flex flex-col items-center justify-center gap-6">
           <div className="relative w-32 h-32">
@@ -60,96 +275,49 @@ const Visualizer: React.FC<VisualizerProps> = ({ imageUrl, loading, onGenerate, 
             <CarIconLoader />
           </div>
           <div className="flex flex-col items-center gap-2">
-            <p className="text-white font-bold tracking-wider animate-pulse">RENDERING BUILD</p>
-            <p className="text-xs text-gray-500">Applying AI style presets...</p>
+            <p className="text-white font-bold tracking-wider animate-pulse">RENDERING 3D SCENE</p>
+            <p className="text-xs text-gray-500">Compiling PBR materials & HDRI lighting...</p>
           </div>
         </div>
       ) : imageUrl ? (
-        <img 
-          src={imageUrl} 
-          alt="Generated Car Build" 
-          className="w-full h-full object-contain z-10 transition-transform duration-1000 ease-out hover:scale-[1.02]"
-        />
+        <div 
+          className="w-full h-full flex items-center justify-center transition-transform duration-100 ease-out z-10 cursor-move"
+          style={{
+            transform: `perspective(1000px) rotateY(${mousePos.x * 20}deg) rotateX(${-mousePos.y * 20}deg) scale(${zoom})`
+          }}
+        >
+          <img 
+            src={imageUrl} 
+            alt="Generated Car Build" 
+            className="w-full h-full object-contain drop-shadow-2xl transition-all duration-500"
+            style={{
+              filter: activeMode === 'X-Ray' ? 'invert(1) hue-rotate(180deg) opacity(0.8) contrast(1.2)' : 
+                      activeMode === 'Exploded' ? 'contrast(1.2) saturate(1.5) drop-shadow(0 0 20px rgba(47,128,237,0.3))' : 'drop-shadow(0 20px 30px rgba(0,0,0,0.5))'
+            }}
+            draggable={false}
+          />
+        </div>
       ) : (
         <div className="z-10 text-center max-w-lg px-4">
           <div className="glass-panel p-10 rounded-3xl backdrop-blur-xl border border-white/10 shadow-glass">
             <div className="w-16 h-16 bg-carvix-accent/20 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-neon">
-              <SparklesIcon className="w-8 h-8 text-carvix-accent" />
+              <Box className="w-8 h-8 text-carvix-accent" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-3">Design Your Dream Spec</h2>
-            <p className="text-gray-400 mb-8 leading-relaxed">Select your vehicle base, modify parts, choose colors, and generate a photorealistic preview using Carvix AI.</p>
+            <h2 className="text-3xl font-bold text-white mb-3">Carvix 3D Engine</h2>
+            <p className="text-gray-400 mb-8 leading-relaxed text-sm">Experience ultra-realistic, real-time 3D rendering. Configure your vehicle and let our AI engine build the scene.</p>
             <button 
               onClick={onGenerate}
               className="px-8 py-4 bg-carvix-accent hover:bg-carvix-accentHover text-white rounded-xl font-bold transition-all shadow-neon flex items-center justify-center gap-3 mx-auto w-full"
             >
               <RefreshCw className="w-5 h-5" />
-              <span>Start Visualization</span>
+              <span>Initialize 3D Viewport</span>
             </button>
           </div>
         </div>
       )}
-
-      {/* Floating Controls */}
-      {imageUrl && !loading && (
-        <>
-          {/* Left Controls */}
-          <div className={`absolute left-6 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-3 transition-all duration-500 ${isHovering ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
-            <ControlButton icon={Rotate3D} tooltip="Rotate 360" />
-            <ControlButton icon={ZoomIn} tooltip="Zoom" />
-            <ControlButton icon={SplitSquareHorizontal} tooltip="Before/After" />
-          </div>
-
-          {/* Bottom Controls */}
-          <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-20 glass-panel px-6 py-3 rounded-2xl flex items-center gap-6 transition-all duration-500 ${isHovering ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <div className="flex items-center gap-4 border-r border-white/10 pr-6">
-              <button className="text-gray-400 hover:text-white transition-colors"><Sun className="w-5 h-5" /></button>
-              <button className="text-carvix-accent shadow-neon rounded-full p-1"><Moon className="w-5 h-5" /></button>
-            </div>
-            <div className="flex items-center gap-4">
-              <button className="text-xs font-medium text-white bg-white/10 px-3 py-1.5 rounded-lg">Studio</button>
-              <button className="text-xs font-medium text-gray-400 hover:text-white transition-colors">Street</button>
-              <button className="text-xs font-medium text-gray-400 hover:text-white transition-colors">Track</button>
-            </div>
-          </div>
-
-          {/* Right Actions */}
-          <div className={`absolute bottom-8 right-8 z-20 flex gap-3 transition-all duration-500 ${isHovering ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4'}`}>
-            <button 
-              onClick={handleDownload}
-              className="p-4 glass-panel text-white rounded-2xl hover:bg-carvix-accent hover:border-carvix-accent transition-all shadow-glass group/btn"
-              title="Download 8K Render"
-            >
-              <Download className="w-5 h-5 group-hover/btn:scale-110 transition-transform" />
-            </button>
-            <button 
-              className="p-4 glass-panel text-white rounded-2xl hover:bg-white/10 transition-all shadow-glass group/btn"
-              title="Cinematic View"
-              onClick={() => window.open(imageUrl, '_blank')}
-            >
-              <Maximize2 className="w-5 h-5 group-hover/btn:scale-110 transition-transform" />
-            </button>
-          </div>
-        </>
-      )}
     </div>
   );
 };
-
-const ControlButton = ({ icon: Icon, tooltip }: { icon: any, tooltip: string }) => (
-  <button className="p-3 glass-panel text-gray-400 hover:text-white hover:bg-white/10 rounded-xl transition-all group relative">
-    <Icon className="w-5 h-5" />
-    <span className="absolute left-full ml-3 px-2 py-1 bg-carvix-panel text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-      {tooltip}
-    </span>
-  </button>
-);
-
-const SparklesIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
-    <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
-  </svg>
-);
 
 const CarIconLoader = () => (
   <div className="absolute inset-0 flex items-center justify-center opacity-80">
