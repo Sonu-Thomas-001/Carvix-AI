@@ -1,16 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   Sparkles, Layers, Palette, Share2, Globe, 
   MessageSquare, ChevronRight, Play, CheckCircle2, 
-  Star, Zap, Shield, Menu, X, Activity, Scan, Car 
+  Star, Zap, Shield, Activity, Scan, Car 
 } from 'lucide-react';
-import Logo from '../components/Logo';
+import Layout from '../components/Layout';
 
 const LandingPage: React.FC = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
@@ -22,49 +20,9 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-carvix-bg text-white font-sans overflow-x-hidden selection:bg-carvix-accent/30 selection:text-carvix-accent">
-      
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-carvix-bg/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Logo variant="full" iconClassName="w-8 h-8" textClassName="text-xl" />
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Features</a>
-            <a href="#ai" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">AI Power</a>
-            <a href="#gallery" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Gallery</a>
-            <a href="#pricing" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Pricing</a>
-          </div>
-
-          <div className="hidden md:flex items-center gap-4">
-            <Link to="/build" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">Log In</Link>
-            <Link to="/build" className="px-5 py-2.5 bg-carvix-accent hover:bg-carvix-accentHover text-white rounded-xl text-sm font-bold transition-all shadow-neon hover:scale-105">
-              Start Building
-            </Link>
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          <button className="md:hidden p-2 text-gray-400" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Nav */}
-        {isMenuOpen && (
-          <div className="md:hidden absolute top-20 left-0 w-full bg-carvix-panel border-b border-white/5 p-6 flex flex-col gap-4 shadow-2xl">
-            <a href="#features" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-gray-300">Features</a>
-            <a href="#ai" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-gray-300">AI Power</a>
-            <a href="#gallery" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-gray-300">Gallery</a>
-            <a href="#pricing" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-gray-300">Pricing</a>
-            <div className="h-px bg-white/10 my-2"></div>
-            <Link to="/build" className="w-full py-3 text-center bg-carvix-accent text-white rounded-xl font-bold shadow-neon">Start Building</Link>
-          </div>
-        )}
-      </nav>
-
+    <Layout>
       {/* 1. Hero Section */}
-      <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 overflow-hidden">
+      <section className="relative pt-12 pb-20 md:pt-28 md:pb-32 px-6 overflow-hidden">
         {/* Background Effects */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-carvix-accent/20 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-carvix-purple/20 rounded-full blur-[120px] pointer-events-none"></div>
@@ -385,55 +343,7 @@ const LandingPage: React.FC = () => {
           </Link>
         </div>
       </section>
-
-      {/* 11. Footer */}
-      <footer className="bg-carvix-bg border-t border-white/5 pt-16 pb-8 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          <div className="col-span-2 md:col-span-1">
-            <div className="mb-4">
-              <Logo variant="full" iconClassName="w-6 h-6" textClassName="text-lg" />
-            </div>
-            <p className="text-sm text-gray-500">The next-generation AI-powered automotive design studio.</p>
-          </div>
-          
-          <div>
-            <h4 className="font-bold mb-4">Product</h4>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Gallery</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">API</a></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-bold mb-4">Company</h4>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-bold mb-4">Legal</h4>
-            <ul className="space-y-2 text-sm text-gray-500">
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-            </ul>
-          </div>
-        </div>
-        
-        <div className="max-w-7xl mx-auto pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-600">© 2026 Carvix AI. All rights reserved.</p>
-          <div className="flex gap-4">
-            <a href="#" className="text-gray-600 hover:text-white transition-colors"><Shield className="w-4 h-4" /></a>
-            <a href="#" className="text-gray-600 hover:text-white transition-colors"><Globe className="w-4 h-4" /></a>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </Layout>
   );
 };
 
